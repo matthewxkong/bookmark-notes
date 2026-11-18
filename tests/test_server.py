@@ -62,6 +62,11 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(self.request("POST", "/save", self.form(csrf="wrong"))[0], 403)
         self.assertEqual(self.request("POST", "/save", self.form(), headers={"Host": "attacker.example"})[0], 403)
 
+    def test_out_of_range_bookmark_id_returns_missing_bookmark(self):
+        for value in (str(2**63), str(-2**63 - 1)):
+            with self.subTest(value=value):
+                self.assertEqual(self.request("GET", "/edit?id=" + value)[0], 404)
+
     def test_invalid_form_preserves_escaped_values(self):
         status, _, body = self.request("POST", "/save", self.form(title='<script>alert("x")</script>', url="javascript:alert(1)"))
         self.assertEqual(status, 400)
