@@ -64,6 +64,8 @@ class BookmarkStore:
         return result
 
     def get(self, bookmark_id):
+        if isinstance(bookmark_id, int) and not -(2**63) <= bookmark_id < 2**63:
+            raise LookupError("Bookmark not found")
         row = self.db.execute("SELECT * FROM bookmarks WHERE id=?", (bookmark_id,)).fetchone()
         if row is None:
             raise LookupError("Bookmark not found")
