@@ -90,12 +90,20 @@ class BookmarkStore:
                 self.db.execute("INSERT OR IGNORE INTO tags(name) VALUES(?)", (name,))
                 self.db.execute("""INSERT INTO bookmark_tags(bookmark_id,tag_id)
                     SELECT ?,id FROM tags WHERE name=?""", (bookmark_id, name))
+            self._remove_unused_tags()
         return self.get(bookmark_id)
 
     def delete(self, bookmark_id):
         self.get(bookmark_id)
         with self.db:
             self.db.execute("DELETE FROM bookmarks WHERE id=?", (bookmark_id,))
+
+            self._remove_unused_tags()
+
+    def _remove_unused_tags(self):
+        self.db.execute("""DELETE FROM tags WHERE NOT EXISTS (
+            SELECT 1 FROM bookmark_tags WHERE tag_id = tags.id
+        )""")
 
     def tag_counts(self):
         return [dict(row) for row in self.db.execute("""SELECT tags.name, count(*) AS count

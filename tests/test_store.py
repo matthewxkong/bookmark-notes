@@ -67,6 +67,15 @@ class BookmarkTests(unittest.TestCase):
         with self.assertRaises(LookupError):
             self.store.get(row["id"])
 
+    def test_retag_and_delete_remove_only_unused_names(self):
+        first = self.store.save("One", "https://example.com/1", tags="old,shared")
+        second = self.store.save("Two", "https://example.com/2", tags="shared")
+        self.store.save("One", first["url"], tags="new", bookmark_id=first["id"])
+        self.assertEqual(self.store.get(second["id"])["tags"], ["shared"])
+        self.store.delete(second["id"])
+        names = [row[0] for row in self.store.db.execute("SELECT name FROM tags")]
+        self.assertEqual(names, ["new"])
+
     def test_failed_tag_write_rolls_back_bookmark_and_tags(self):
         row = self.store.save("Original", "https://example.com", tags="old")
         self.store.db.execute("""CREATE TRIGGER fail_tag BEFORE INSERT ON tags
