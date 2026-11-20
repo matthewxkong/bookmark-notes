@@ -10,6 +10,13 @@ from bookmark_notes.server import make_server
 
 
 class ServerTests(unittest.TestCase):
+    def test_canonical_tag_links(self):
+        self.request("POST", "/save", self.form(url="https://example.com/tag-case", tags="unique-tag"))
+        status, _, body = self.request("GET", "/?tag=Unique-TAG")
+        self.assertEqual(status, 200)
+        self.assertIn('tag=unique-tag" aria-current="page"', body)
+        self.assertIn('name="tag" value="unique-tag"', body)
+
     @classmethod
     def setUpClass(cls):
         cls.folder = tempfile.TemporaryDirectory()
