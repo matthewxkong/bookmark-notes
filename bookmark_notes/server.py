@@ -49,6 +49,7 @@ class Handler(BaseHTTPRequestHandler):
                     query, tag = params.get("q", [""])[0], params.get("tag", [""])[0]
                     if len(query) > 200 or len(tag) > 30:
                         raise ValueError("Search or tag is too long")
+                    tag = tag.strip().lower()
                     result = store.find(query, tag, int(params.get("page", ["1"])[0]))
                     self.respond(views.library(result, store.tag_counts(), query, tag))
                 elif route.path == "/new":
