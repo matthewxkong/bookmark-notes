@@ -8,6 +8,12 @@ from bookmark_notes import views
 
 
 class BookmarkTests(unittest.TestCase):
+    def test_unicode_search(self):
+        self.store.save("Stra\u00dfe", "https://example.com", notes="CAF\u00c9", tags="reading")
+        for query in ("STRASSE", "caf\u00e9"):
+            self.assertEqual(self.store.find(query, "reading")["total"], 1)
+        self.assertEqual(self.store.find("%")["total"], 0)
+
     def setUp(self):
         self.store = BookmarkStore(":memory:")
         self.addCleanup(self.store.db.close)
