@@ -34,7 +34,7 @@ Help does not create a database. An invalid or occupied port reports an error.
 4. Select **Edit** on a card to update its details.
 5. To delete, open Edit, check the confirmation box, and select Delete bookmark.
 
-Search is literal and case-insensitive for ASCII letters. SQL syntax and `%` are
+Search is literal and case-insensitive using Unicode case folding. SQL syntax and `%` are
 ordinary text. Newest bookmarks appear first, with 12 per page. Tags are normalized
 to lowercase and deduplicated; each accepts 1–30 ASCII letters, digits, or hyphens,
 with up to 12 tags per bookmark. Titles allow 200 characters, notes 4000, and URLs

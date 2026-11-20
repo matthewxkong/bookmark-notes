@@ -34,6 +34,7 @@ class BookmarkStore:
             path = str(Path(path).expanduser())
             Path(path).parent.mkdir(parents=True, exist_ok=True)
         self.db = sqlite3.connect(path)
+        self.db.create_function('casefold', 1, str.casefold, deterministic=True)
         self.db.row_factory = sqlite3.Row
         self.db.execute("PRAGMA foreign_keys = ON")
         self.db.executescript("""
@@ -107,8 +108,8 @@ class BookmarkStore:
             raise ValueError("Invalid page or page size")
         clauses, values = [], []
         if query:
-            clauses.append("instr(lower(title || char(10) || url || char(10) || notes), lower(?)) > 0")
-            values.append(query)
+            clauses.append("instr(casefold(title || char(10) || url || char(10) || notes), ?) > 0")
+            values.append(query.casefold())
         if tag:
             clauses.append("""EXISTS(SELECT 1 FROM bookmark_tags JOIN tags ON tags.id=tag_id
                 WHERE bookmark_id=bookmarks.id AND tags.name=?)""")
